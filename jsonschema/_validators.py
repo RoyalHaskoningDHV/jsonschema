@@ -233,8 +233,26 @@ def dependencies(validator, dependencies, instance, schema):
 
 
 def enum(validator, enums, instance, schema):
-    if instance not in enums:
-        yield ValidationError("%r is not one of %r" % (instance, enums))
+    ok = False
+    error = None
+
+    if instance in enums:
+        ok = True
+    else:
+        error = ValidationError("%r is not one of %r" % (instance, enums))
+
+    if not ok:
+        from jsonschema.validators import validate
+        for e in enums:
+            if isinstance(e, dict):
+                try:
+                    validate(instance, e)
+                    ok = True
+                    break
+                except Exception as ex:
+                    error = ex
+    if not ok:
+        yield error
 
 
 def ref(validator, ref, instance, schema):
