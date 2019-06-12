@@ -275,8 +275,9 @@ def ref(validator, ref, instance, schema):
 def type(validator, types, instance, schema):
     types = _utils.ensure_list(types)
 
-    if not any(validator.is_type(instance, type) for type in types):
+    if not any(validator.is_type(instance, t) for t in types) and (instance is None and not schema.get('nullable')):
         yield ValidationError(_utils.types_msg(instance, types))
+
 
 
 def properties(validator, properties, instance, schema):
